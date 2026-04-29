@@ -1,0 +1,192 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #e6eef8;
+  background: #07111f;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(47, 87, 191, 0.42), transparent 32%),
+    radial-gradient(circle at right, rgba(26, 166, 154, 0.28), transparent 22%),
+    linear-gradient(160deg, #07111f 0%, #0b1830 52%, #132644 100%);
+}
+
+a {
+  color: #8fd8ff;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-panel {
+  width: min(100%, 980px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 420px);
+  gap: 32px;
+  padding: 32px;
+  border: 1px solid rgba(157, 178, 214, 0.2);
+  border-radius: 8px;
+  background: rgba(7, 17, 31, 0.78);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+}
+
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 8px;
+}
+
+.brand-tag {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 18px;
+  padding: 6px 10px;
+  border: 1px solid rgba(143, 216, 255, 0.22);
+  border-radius: 999px;
+  color: #8fd8ff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.brand-block h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+}
+
+.brand-block p {
+  max-width: 42ch;
+  margin: 16px 0 0;
+  color: #b6c3d6;
+  font-size: 1rem;
+}
+
+.login-form {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid rgba(157, 178, 214, 0.16);
+  border-radius: 8px;
+  background: rgba(10, 19, 36, 0.92);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span,
+.checkbox span,
+.form-row a {
+  font-size: 0.95rem;
+}
+
+.field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(157, 178, 214, 0.2);
+  border-radius: 8px;
+  background: rgba(8, 17, 30, 0.9);
+  color: #eef5ff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field input::placeholder {
+  color: #7f90a8;
+}
+
+.field input:focus {
+  border-color: #52b7ff;
+  box-shadow: 0 0 0 4px rgba(82, 183, 255, 0.14);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #c4d0e0;
+}
+
+.checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: #52b7ff;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #33b0ff 0%, #1265ff 100%);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(18, 101, 255, 0.28);
+}
+
+@media (max-width: 860px) {
+  .login-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-block {
+    padding: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .page-shell {
+    padding: 16px;
+  }
+
+  .login-panel,
+  .login-form {
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
