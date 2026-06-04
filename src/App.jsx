@@ -1,46 +1,19 @@
-function App() {
-  const handleSubmit = (event) => {
-    event.preventDefault()
-  }
+import { useState } from "react"
+import LoginPage from "./Pages/LoginPage"
+import RegisterPage from "./Pages/RegisterPages"
+import NewsPage from "./Pages/NewPage"
 
-  return (
-    <main className="page-shell">
-      <section className="login-panel" aria-labelledby="site-title">
-        <div className="brand-block">
-          <span className="brand-tag">Portal de noticias</span>
-          <h1 id="site-title">InfoNews</h1>
-          <p>
-            Acesse sua conta para acompanhar manchetes, alertas e os assuntos
-            que importam para voce.
-          </p>
-        </div>
+export default function App() {
+    const [usuario, setUsuario] = useState(null)
+    const [tela, setTela] = useState("login")
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <label className="field">
-            <span>E-mail</span>
-            <input type="email" placeholder="seuemail@exemplo.com" required />
-          </label>
+    if (usuario) {
+        return <NewsPage usuario={usuario} onLogout={() => { setUsuario(null); setTela("login") }} />
+    }
 
-          <label className="field">
-            <span>Senha</span>
-            <input type="password" placeholder="Digite sua senha" required />
-          </label>
+    if (tela === "cadastro") {
+        return <RegisterPage onCadastro={(u) => { setUsuario(u) }} onVoltar={() => setTela("login")} />
+    }
 
-          <div className="form-row">
-            <label className="checkbox">
-              <input type="checkbox" />
-              <span>Lembrar acesso</span>
-            </label>
-            <a href="/" onClick={(event) => event.preventDefault()}>
-              Esqueci a senha
-            </a>
-          </div>
-
-          <button type="submit">Entrar</button>
-        </form>
-      </section>
-    </main>
-  )
+    return <LoginPage onLogin={setUsuario} onCadastro={() => setTela("cadastro")} />
 }
-
-export default App
