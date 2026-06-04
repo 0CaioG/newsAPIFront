@@ -20,8 +20,8 @@ export async function cadastrar(email, senha, confirmacaoSenha) {
     return res.json()
 }
 
-export async function buscarNoticias(query, usuarioId) {
-    const res = await fetch(`${API}/news/buscar?q=${encodeURIComponent(query)}`, {
+export async function buscarNoticias(query, language, usuarioId) {
+    const res = await fetch(`${API}/news/buscar?q=${encodeURIComponent(query)}&language=${language}`, {
         headers: { usuarioId },
     })
     if (!res.ok) throw new Error("Erro ao buscar notícias")

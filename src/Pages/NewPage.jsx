@@ -2,7 +2,6 @@ import { useState } from "react"
 import { buscarNoticias } from "../Services/api"
 import { Search, Star, Clock, User } from "lucide-react"
 
-
 const MENU_ITEMS = [
     { id: "busca",     label: "Busca",     icon: <Search size={18} /> },
     { id: "favoritos", label: "Favoritos", icon: <Star size={18} /> },
@@ -14,7 +13,7 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <span className="brand-tag">Portal de noticias</span>
+                <span className="brand-tag">Portal de notícias</span>
                 <h2 className="sidebar-title">InfoNews</h2>
             </div>
 
@@ -41,19 +40,19 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
 
 function BuscaTab({ usuario }) {
     const [query, setQuery] = useState("")
+    const [idioma, setIdioma] = useState("pt")
     const [noticias, setNoticias] = useState([])
     const [loading, setLoading] = useState(false)
     const [erro, setErro] = useState("")
     const [buscado, setBuscado] = useState(false)
 
-    const buscar = async (e) => {
-        e.preventDefault()
-        if (!query.trim()) return
+    const realizarBusca = async (termoDeBusca, idiomaEscolhido) => {
+        if (!termoDeBusca.trim()) return
         setErro("")
         setLoading(true)
         setBuscado(true)
         try {
-            const data = await buscarNoticias(query, usuario.id)
+            const data = await buscarNoticias(termoDeBusca, idiomaEscolhido, usuario.id)
             setNoticias(data.articles || [])
         } catch (err) {
             setErro(err.message)
@@ -62,10 +61,24 @@ function BuscaTab({ usuario }) {
         }
     }
 
+    const buscarForm = (e) => {
+        e.preventDefault()
+        realizarBusca(query, idioma)
+    }
+
+    const trocarIdioma = (e) => {
+        const novoIdioma = e.target.value
+        setIdioma(novoIdioma)
+        
+        if (query.trim()) {
+            realizarBusca(query, novoIdioma)
+        }
+    }
+
     return (
         <>
             <section className="search-section">
-                <form className="search-form" onSubmit={buscar}>
+                <form className="search-form" onSubmit={buscarForm}>
                     <input
                         type="text"
                         placeholder="Busque por assunto, ex: tecnologia, política..."
@@ -73,7 +86,26 @@ function BuscaTab({ usuario }) {
                         onChange={(e) => setQuery(e.target.value)}
                         className="search-input"
                     />
-                    <button type="submit" className="search-btn" disabled={loading}>
+                    
+                    <select 
+                        value={idioma} 
+                        onChange={trocarIdioma} 
+                        className="language-select"
+                        style={{ padding: '0.5rem', borderRadius: '4px', border: 'none', marginLeft: '8px', backgroundColor: '#333', color: '#fff' }}
+                    >
+                        <option value="pt">Português</option>
+                        <option value="en">Inglês</option>
+                        <option value="es">Espanhol</option>
+                        <option value="fr">Francês</option>
+                        <option value="de">Alemão</option>
+                        <option value="it">Italiano</option>
+                        <option value="nl">Holandês</option>
+                        <option value="ru">Russo</option>
+                        <option value="zh">Chinês</option>
+                        <option value="ar">Árabe</option>
+                    </select>
+
+                    <button type="submit" className="search-btn" disabled={loading} style={{ marginLeft: '8px' }}>
                         {loading ? "Buscando..." : "Buscar"}
                     </button>
                 </form>
