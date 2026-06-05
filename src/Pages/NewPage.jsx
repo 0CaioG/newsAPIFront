@@ -608,6 +608,14 @@ function HistoricoTab({ usuario }) {
     )
 }
 
+const TEMAS = [
+    { id: "padrao",     label: "Padrão",     bgPage: "#0b1830", bgSurface: "#0e1e36", accent: "#52b7ff" },
+    { id: "claro",      label: "Claro",      bgPage: "#f1f5f9", bgSurface: "#ffffff", accent: "#2563eb" },
+    { id: "escuro",     label: "Escuro",     bgPage: "#09090b", bgSurface: "#18181b", accent: "#818cf8" },
+    { id: "floresta",   label: "Floresta",   bgPage: "#0a1a0f", bgSurface: "#0f2015", accent: "#22c55e" },
+    { id: "por-do-sol", label: "Pôr do Sol", bgPage: "#1a1208", bgSurface: "#221808", accent: "#f97316" },
+]
+
 const IDIOMAS = [
     { value: "pt", label: "Português" },
     { value: "en", label: "Inglês" },
@@ -621,7 +629,7 @@ const IDIOMAS = [
     { value: "ar", label: "Árabe" },
 ]
 
-function PerfilTab({ usuario, onLogout }) {
+function PerfilTab({ usuario, onLogout, tema, onTema }) {
     const [senha, setSenha] = useState("")
     const [confirmacaoSenha, setConfirmacaoSenha] = useState("")
     const [loadingSenha, setLoadingSenha] = useState(false)
@@ -758,6 +766,28 @@ function PerfilTab({ usuario, onLogout }) {
             <div className="perfil-divider" />
 
             <div className="perfil-section">
+                <h3 className="perfil-group-title">Tema</h3>
+                <div className="tema-grid">
+                    {TEMAS.map(t => (
+                        <button
+                            key={t.id}
+                            className={`tema-card ${tema === t.id ? "tema-ativo" : ""}`}
+                            onClick={() => onTema(t.id)}
+                        >
+                            <div className="tema-preview" style={{ background: t.bgPage }}>
+                                <div className="tema-preview-inner" style={{ background: t.bgSurface }}>
+                                    <span className="tema-dot" style={{ background: t.accent }} />
+                                </div>
+                            </div>
+                            <span className="tema-label">{t.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="perfil-divider" />
+
+            <div className="perfil-section">
                 {erroExcluir && <p className="erro-msg">{erroExcluir}</p>}
                 {!confirmarExclusao ? (
                     <div className="perfil-danger-row">
@@ -787,7 +817,7 @@ function PerfilTab({ usuario, onLogout }) {
     )
 }
 
-export default function NewsPage({ usuario, onLogout }) {
+export default function NewsPage({ usuario, onLogout, tema, onTema }) {
     const [aba, setAba] = useState("destaques")
     const [visitados, setVisitados] = useState(new Set(["destaques"]))
 
@@ -815,7 +845,7 @@ export default function NewsPage({ usuario, onLogout }) {
                 {tab("favoritos",    <FavoritosTab usuario={usuario} />)}
                 {tab("monitoramento",<MonitoramentoTab usuario={usuario} />)}
                 {tab("historico",    <HistoricoTab usuario={usuario} />)}
-                {tab("perfil",       <PerfilTab usuario={usuario} onLogout={onLogout} />)}
+                {tab("perfil",       <PerfilTab usuario={usuario} onLogout={onLogout} tema={tema} onTema={onTema} />)}
             </main>
         </div>
     )

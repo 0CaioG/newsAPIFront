@@ -1,6 +1,6 @@
-/* ── TEMA PADRÃO (Escuro) ────────────────────────────────────────────────── */
+/* ── TEMA PADRÃO ─────────────────────────────────────────────────────────── */
 :root,
-[data-theme="escuro"] {
+[data-theme="padrao"] {
     --bg-page:     #0b1830;
     --bg-sidebar:  #091525;
     --bg-surface:  #0e1e36;
@@ -99,7 +99,7 @@ select {
 
 .brand-block h1 {
     margin: 0;
-    color: #ffffff;
+    color: var(--text-1);
     font-size: clamp(2.4rem, 5vw, 4.5rem);
 }
 
@@ -273,7 +273,7 @@ select {
 .sidebar-title {
     margin: 0;
     font-size: 1.4rem;
-    color: #fff;
+    color: var(--text-1);
 }
 
 .sidebar-nav {
@@ -972,6 +972,223 @@ select {
 .tab-placeholder p {
     margin: 0;
     font-size: 0.95rem;
+}
+
+/* ── TEMA CLARO ──────────────────────────────────────────────────────────── */
+[data-theme="claro"] {
+    --bg-page:     #f1f5f9;
+    --bg-sidebar:  #e2e8f0;
+    --bg-surface:  #ffffff;
+    --bg-elevated: #f8fafc;
+    --bg-input:    #f1f5f9;
+    --bg-hover:    #e8edf5;
+
+    --border:        #cbd5e1;
+    --border-subtle: #e2e8f0;
+
+    --text-1: #0f172a;
+    --text-2: #334155;
+    --text-3: #64748b;
+    --text-4: #94a3b8;
+
+    --accent:        #2563eb;
+    --accent-bg:     #dbeafe;
+    --accent-border: #bfdbfe;
+    --btn-primary:   #2563eb;
+    --btn-hover:     #1d4ed8;
+
+    --danger:        #dc2626;
+    --danger-bg:     #fee2e2;
+    --danger-border: #fca5a5;
+    --danger-hover:  #fecaca;
+
+    --success:        #16a34a;
+    --success-bg:     #dcfce7;
+    --success-border: #86efac;
+
+    --teal:    #0d9488;
+    --teal-bg: #ccfbf1;
+
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ── TEMA ESCURO ─────────────────────────────────────────────────────────── */
+[data-theme="escuro"] {
+    --bg-page:     #09090b;
+    --bg-sidebar:  #050507;
+    --bg-surface:  #18181b;
+    --bg-elevated: #1f1f23;
+    --bg-input:    #0f0f12;
+    --bg-hover:    #27272a;
+
+    --border:        #3f3f46;
+    --border-subtle: #27272a;
+
+    --text-1: #fafafa;
+    --text-2: #d4d4d8;
+    --text-3: #a1a1aa;
+    --text-4: #52525b;
+
+    --accent:        #818cf8;
+    --accent-bg:     #1e1b4b;
+    --accent-border: #312e81;
+    --btn-primary:   #6366f1;
+    --btn-hover:     #4f46e5;
+
+    --danger:        #f87171;
+    --danger-bg:     #1f0e0e;
+    --danger-border: #3f1a1a;
+    --danger-hover:  #2d1010;
+
+    --success:        #4ade80;
+    --success-bg:     #052e16;
+    --success-border: #14532d;
+
+    --teal:    #2dd4bf;
+    --teal-bg: #042f2e;
+
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* ── TEMA FLORESTA ───────────────────────────────────────────────────────── */
+[data-theme="floresta"] {
+    --bg-page:     #0a1a0f;
+    --bg-sidebar:  #061109;
+    --bg-surface:  #0f2015;
+    --bg-elevated: #132819;
+    --bg-input:    #091509;
+    --bg-hover:    #172e1e;
+
+    --border:        #1e4a28;
+    --border-subtle: #132818;
+
+    --text-1: #ecfdf5;
+    --text-2: #a7f3d0;
+    --text-3: #6ee7b7;
+    --text-4: #34d399;
+
+    --accent:        #22c55e;
+    --accent-bg:     #052e16;
+    --accent-border: #14532d;
+    --btn-primary:   #16a34a;
+    --btn-hover:     #15803d;
+
+    --danger:        #f87171;
+    --danger-bg:     #1f0e0e;
+    --danger-border: #3f1a1a;
+    --danger-hover:  #2d1010;
+
+    --success:        #4ade80;
+    --success-bg:     #052e16;
+    --success-border: #14532d;
+
+    --teal:    #2dd4bf;
+    --teal-bg: #042f2e;
+
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ── TEMA PÔR DO SOL ─────────────────────────────────────────────────────── */
+[data-theme="por-do-sol"] {
+    --bg-page:     #1a1208;
+    --bg-sidebar:  #0f0a04;
+    --bg-surface:  #221808;
+    --bg-elevated: #2a1f0a;
+    --bg-input:    #160f04;
+    --bg-hover:    #302510;
+
+    --border:        #4a3010;
+    --border-subtle: #2e1e08;
+
+    --text-1: #fef9ee;
+    --text-2: #fde68a;
+    --text-3: #fbbf24;
+    --text-4: #d97706;
+
+    --accent:        #f97316;
+    --accent-bg:     #2c1200;
+    --accent-border: #431c00;
+    --btn-primary:   #ea580c;
+    --btn-hover:     #c2410c;
+
+    --danger:        #f87171;
+    --danger-bg:     #1f0e0e;
+    --danger-border: #3f1a1a;
+    --danger-hover:  #2d1010;
+
+    --success:        #4ade80;
+    --success-bg:     #052e16;
+    --success-border: #14532d;
+
+    --teal:    #fb923c;
+    --teal-bg: #2c1200;
+
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ── SELETOR DE TEMA ─────────────────────────────────────────────────────── */
+.tema-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tema-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    overflow: hidden;
+}
+
+.tema-card:hover {
+    border-color: var(--text-3);
+}
+
+.tema-ativo {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.tema-preview {
+    width: 100px;
+    height: 64px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    border-radius: 8px 8px 0 0;
+}
+
+.tema-preview-inner {
+    width: 56px;
+    height: 32px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tema-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.tema-label {
+    font-size: 0.78rem;
+    color: var(--text-2);
+    padding: 0 10px 8px;
+    font-weight: 500;
 }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
