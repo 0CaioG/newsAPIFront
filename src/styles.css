@@ -58,9 +58,9 @@ input {
 .brand-block {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 16px;
-    padding: 16px 24px 16px 8px;
+    padding: 32px 24px 16px 8px;
 }
 
 .brand-tag {
