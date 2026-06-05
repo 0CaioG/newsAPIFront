@@ -944,10 +944,33 @@ input {
     letter-spacing: 0.06em;
 }
 
+.perfil-conta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
 .perfil-email {
     color: #52b7ff;
     font-weight: 600;
     font-size: 1rem;
+}
+
+.logout-inline-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: #7f90a8;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 5px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.logout-inline-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #d0dff0;
 }
 
 .perfil-row {

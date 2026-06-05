@@ -678,7 +678,10 @@ function PerfilTab({ usuario, onLogout }) {
                 <h3 className="perfil-group-title">Conta</h3>
                 <div className="perfil-field">
                     <span className="perfil-label">E-mail</span>
-                    <span className="perfil-email">{usuario.email}</span>
+                    <div className="perfil-conta-row">
+                        <span className="perfil-email">{usuario.email}</span>
+                        <button className="logout-inline-btn" onClick={onLogout}>Sair da conta</button>
+                    </div>
                 </div>
             </div>
 
