@@ -3,6 +3,7 @@ import {
     buscarNoticias, buscarFontes, buscarDestaques,
     listarFavoritos, adicionarFavorito, removerFavorito,
     listarMonitoramento, adicionarMonitoramento, removerMonitoramento, buscarFeedMonitoramento,
+    listarHistorico, limparHistorico, atualizarSenha,
 } from "../Services/api"
 import { Search, Star, Clock, User, TrendingUp, Bell } from "lucide-react"
 
@@ -16,13 +17,13 @@ const MENU_ITEMS = [
 ]
 
 const CATEGORIAS = [
-    { id: "general",       label: "Geral" },
-    { id: "technology",    label: "Tecnologia" },
-    { id: "business",      label: "Negócios" },
-    { id: "sports",        label: "Esportes" },
-    { id: "entertainment", label: "Entretenimento" },
-    { id: "health",        label: "Saúde" },
-    { id: "science",       label: "Ciência" },
+    { id: "noticias",       label: "Geral" },
+    { id: "tecnologia",     label: "Tecnologia" },
+    { id: "economia",       label: "Negócios" },
+    { id: "esportes",       label: "Esportes" },
+    { id: "entretenimento", label: "Entretenimento" },
+    { id: "saude",          label: "Saúde" },
+    { id: "ciencia",        label: "Ciência" },
 ]
 
 function Sidebar({ aba, setAba, usuario, onLogout }) {
@@ -54,18 +55,44 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
     )
 }
 
+const LIMITE_DESTAQUES = 9
+const LIMITE_FEED = 3
+
+function CardList({ artigos }) {
+    return (
+        <div className="cards-grid">
+            {artigos.map((article, i) => (
+                <a key={i} href={article.url} target="_blank"
+                   rel="noopener noreferrer" className="news-card">
+                    <div className="card-source">{article.source?.name}</div>
+                    <h2 className="card-title">{article.title}</h2>
+                    <p className="card-desc">{article.description}</p>
+                    <span className="card-date">
+                        {article.publishedAt
+                            ? new Date(article.publishedAt).toLocaleDateString("pt-BR")
+                            : ""}
+                    </span>
+                </a>
+            ))}
+        </div>
+    )
+}
+
 function DestaquesTab({ usuario }) {
-    const [categoria, setCategoria] = useState("general")
+    const [categoria, setCategoria] = useState("noticias")
     const [noticias, setNoticias] = useState([])
     const [feed, setFeed] = useState([])
     const [loading, setLoading] = useState(false)
     const [erro, setErro] = useState("")
+    const [expandidoDestaques, setExpandidoDestaques] = useState(false)
+    const [expandidosFeed, setExpandidosFeed] = useState(new Set())
 
-    const carregarDestaques = async (cat) => {
+    const carregarDestaques = async (q) => {
         setLoading(true)
         setErro("")
+        setExpandidoDestaques(false)
         try {
-            const data = await buscarDestaques("br", cat)
+            const data = await buscarDestaques("pt", q)
             setNoticias(data.articles || [])
         } catch (err) {
             setErro(err.message)
@@ -81,10 +108,20 @@ function DestaquesTab({ usuario }) {
             .catch(() => {})
     }, [])
 
-    const trocarCategoria = (cat) => {
-        setCategoria(cat)
-        carregarDestaques(cat)
+    const trocarCategoria = (q) => {
+        setCategoria(q)
+        carregarDestaques(q)
     }
+
+    const toggleFeed = (id) => {
+        setExpandidosFeed(prev => {
+            const novo = new Set(prev)
+            novo.has(id) ? novo.delete(id) : novo.add(id)
+            return novo
+        })
+    }
+
+    const noticiasMostradas = expandidoDestaques ? noticias : noticias.slice(0, LIMITE_DESTAQUES)
 
     return (
         <>
@@ -109,53 +146,45 @@ function DestaquesTab({ usuario }) {
                 {!loading && noticias.length === 0 && !erro && (
                     <p className="hint">Nenhum destaque encontrado.</p>
                 )}
-                <div className="cards-grid">
-                    {noticias.map((article, i) => (
-                        <a key={i} href={article.url} target="_blank"
-                           rel="noopener noreferrer" className="news-card">
-                            <div className="card-source">{article.source?.name}</div>
-                            <h2 className="card-title">{article.title}</h2>
-                            <p className="card-desc">{article.description}</p>
-                            <span className="card-date">
-                                {article.publishedAt
-                                    ? new Date(article.publishedAt).toLocaleDateString("pt-BR")
-                                    : ""}
-                            </span>
-                        </a>
-                    ))}
-                </div>
+
+                <CardList artigos={noticiasMostradas} />
+
+                {noticias.length > LIMITE_DESTAQUES && (
+                    <button className="ver-mais-btn" onClick={() => setExpandidoDestaques(e => !e)}>
+                        {expandidoDestaques ? "Ver menos" : `Ver mais (${noticias.length - LIMITE_DESTAQUES} notícias)`}
+                    </button>
+                )}
 
                 {feed.length > 0 && (
                     <div className="monitor-feed">
                         <h2 className="section-title" style={{ marginTop: "40px" }}>Meu monitoramento</h2>
-                        {feed.map(item => (
-                            <div key={item.monitoramentoId} className="feed-section">
-                                <h3 className="feed-section-title">
-                                    <Bell size={14} />
-                                    {item.nome}
-                                    <span className="feed-tipo">{item.tipo === "TEMA" ? "Tema" : "Fonte"}</span>
-                                </h3>
-                                {item.artigos.length === 0 ? (
-                                    <p className="hint" style={{ margin: "8px 0" }}>Nenhuma notícia encontrada.</p>
-                                ) : (
-                                    <div className="cards-grid">
-                                        {item.artigos.slice(0, 3).map((article, i) => (
-                                            <a key={i} href={article.url} target="_blank"
-                                               rel="noopener noreferrer" className="news-card">
-                                                <div className="card-source">{article.source?.name}</div>
-                                                <h2 className="card-title">{article.title}</h2>
-                                                <p className="card-desc">{article.description}</p>
-                                                <span className="card-date">
-                                                    {article.publishedAt
-                                                        ? new Date(article.publishedAt).toLocaleDateString("pt-BR")
-                                                        : ""}
-                                                </span>
-                                            </a>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {feed.map(item => {
+                            const expandido = expandidosFeed.has(item.monitoramentoId)
+                            const artigosMostrados = expandido
+                                ? item.artigos
+                                : item.artigos.slice(0, LIMITE_FEED)
+                            return (
+                                <div key={item.monitoramentoId} className="feed-section">
+                                    <h3 className="feed-section-title">
+                                        <Bell size={14} />
+                                        {item.nome}
+                                        <span className="feed-tipo">{item.tipo === "TEMA" ? "Tema" : "Fonte"}</span>
+                                    </h3>
+                                    {item.artigos.length === 0 ? (
+                                        <p className="hint" style={{ margin: "8px 0" }}>Nenhuma notícia encontrada.</p>
+                                    ) : (
+                                        <>
+                                            <CardList artigos={artigosMostrados} />
+                                            {item.artigos.length > LIMITE_FEED && (
+                                                <button className="ver-mais-btn" onClick={() => toggleFeed(item.monitoramentoId)}>
+                                                    {expandido ? "Ver menos" : `Ver mais (${item.artigos.length - LIMITE_FEED} notícias)`}
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                 )}
             </section>
@@ -481,41 +510,160 @@ function MonitoramentoTab({ usuario }) {
     )
 }
 
-function HistoricoTab() {
+function HistoricoTab({ usuario }) {
+    const [historico, setHistorico] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [erro, setErro] = useState("")
+
+    useEffect(() => {
+        listarHistorico(usuario.id)
+            .then(data => setHistorico(data))
+            .catch(err => setErro(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const handleLimpar = async () => {
+        try {
+            await limparHistorico(usuario.id)
+            setHistorico([])
+        } catch (err) {
+            setErro(err.message)
+        }
+    }
+
     return (
-        <div className="tab-placeholder">
-            <span className="tab-icon">🕒</span>
-            <h3>Histórico</h3>
-            <p>Suas buscas recentes aparecerão aqui.</p>
-        </div>
+        <section className="results-section" style={{ paddingTop: "32px" }}>
+            <div className="section-header">
+                <h2 className="section-title">Histórico de buscas</h2>
+                {historico.length > 0 && (
+                    <button className="limpar-btn" onClick={handleLimpar}>
+                        Limpar histórico
+                    </button>
+                )}
+            </div>
+            {erro && <p className="erro-msg">{erro}</p>}
+            {loading && <p className="hint">Carregando histórico...</p>}
+            {!loading && historico.length === 0 && !erro && (
+                <p className="hint">Nenhuma busca realizada ainda.</p>
+            )}
+            <ul className="historico-list">
+                {historico.map(item => (
+                    <li key={item.id} className="historico-item">
+                        <span className="historico-termo">{item.termoBusca}</span>
+                        <span className="historico-data">
+                            {new Date(item.dataConsulta).toLocaleString("pt-BR")}
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </section>
     )
 }
 
 function PerfilTab({ usuario }) {
+    const [senha, setSenha] = useState("")
+    const [confirmacaoSenha, setConfirmacaoSenha] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [sucesso, setSucesso] = useState("")
+    const [erro, setErro] = useState("")
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        if (senha !== confirmacaoSenha) {
+            setErro("As senhas não coincidem.")
+            return
+        }
+        setErro("")
+        setSucesso("")
+        setLoading(true)
+        try {
+            await atualizarSenha(usuario.id, usuario.email, senha, confirmacaoSenha)
+            setSucesso("Senha atualizada com sucesso!")
+            setSenha("")
+            setConfirmacaoSenha("")
+        } catch (err) {
+            setErro(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
-        <div className="tab-placeholder">
-            <span className="tab-icon">👤</span>
-            <h3>Perfil</h3>
-            <p className="perfil-email">{usuario.email}</p>
-            <p>Configurações de perfil em breve.</p>
-        </div>
+        <section className="results-section" style={{ paddingTop: "32px" }}>
+            <h2 className="section-title">Perfil</h2>
+
+            <div className="perfil-card">
+                <div className="perfil-email-row">
+                    <span className="perfil-label">E-mail</span>
+                    <span className="perfil-email">{usuario.email}</span>
+                </div>
+
+                <form className="perfil-form" onSubmit={handleSubmit}>
+                    <h3 className="perfil-section-title">Alterar senha</h3>
+
+                    {sucesso && <p className="sucesso-msg">{sucesso}</p>}
+                    {erro && <p className="erro-msg">{erro}</p>}
+
+                    <label className="perfil-field-label">Nova senha</label>
+                    <input
+                        type="password"
+                        placeholder="Mínimo 6 caracteres"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        className="search-input"
+                        required
+                        minLength={6}
+                    />
+
+                    <label className="perfil-field-label">Confirmar nova senha</label>
+                    <input
+                        type="password"
+                        placeholder="Repita a nova senha"
+                        value={confirmacaoSenha}
+                        onChange={(e) => setConfirmacaoSenha(e.target.value)}
+                        className="search-input"
+                        required
+                        minLength={6}
+                    />
+
+                    <button type="submit" className="search-btn" disabled={loading}>
+                        {loading ? "Salvando..." : "Salvar nova senha"}
+                    </button>
+                </form>
+            </div>
+        </section>
     )
 }
 
 export default function NewsPage({ usuario, onLogout }) {
     const [aba, setAba] = useState("destaques")
+    const [visitados, setVisitados] = useState(new Set(["destaques"]))
+
+    const irParaAba = (novaAba) => {
+        setAba(novaAba)
+        setVisitados(prev => new Set([...prev, novaAba]))
+    }
+
+    const tab = (id, elemento) => {
+        if (!visitados.has(id)) return null
+        return (
+            <div style={{ display: aba === id ? "contents" : "none" }}>
+                {elemento}
+            </div>
+        )
+    }
 
     return (
         <div className="app-layout">
-            <Sidebar aba={aba} setAba={setAba} usuario={usuario} onLogout={onLogout} />
+            <Sidebar aba={aba} setAba={irParaAba} usuario={usuario} onLogout={onLogout} />
 
             <main className="main-content">
-                {aba === "destaques"     && <DestaquesTab usuario={usuario} />}
-                {aba === "busca"         && <BuscaTab usuario={usuario} />}
-                {aba === "favoritos"     && <FavoritosTab usuario={usuario} />}
-                {aba === "monitoramento" && <MonitoramentoTab usuario={usuario} />}
-                {aba === "historico"     && <HistoricoTab />}
-                {aba === "perfil"        && <PerfilTab usuario={usuario} />}
+                {tab("destaques",    <DestaquesTab usuario={usuario} />)}
+                {tab("busca",        <BuscaTab usuario={usuario} />)}
+                {tab("favoritos",    <FavoritosTab usuario={usuario} />)}
+                {tab("monitoramento",<MonitoramentoTab usuario={usuario} />)}
+                {tab("historico",    <HistoricoTab usuario={usuario} />)}
+                {tab("perfil",       <PerfilTab usuario={usuario} />)}
             </main>
         </div>
     )

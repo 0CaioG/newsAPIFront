@@ -543,6 +543,25 @@ input {
     font-weight: 600;
 }
 
+.ver-mais-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 28px;
+    border: 1px solid rgba(82, 183, 255, 0.35);
+    border-radius: 999px;
+    background: transparent;
+    color: #52b7ff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.ver-mais-btn:hover {
+    background: rgba(82, 183, 255, 0.1);
+    border-color: rgba(82, 183, 255, 0.6);
+}
+
 .feed-tipo {
     padding: 2px 10px;
     border-radius: 999px;
@@ -771,4 +790,117 @@ input {
 .perfil-email {
     color: #52b7ff !important;
     font-weight: 600;
+}
+
+/* ── Histórico ─────────────────────────────────────────────────────────── */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.section-header .section-title {
+    margin-bottom: 0;
+}
+
+.limpar-btn {
+    background: rgba(255, 80, 80, 0.15);
+    color: #ff7b7b;
+    border: 1px solid rgba(255, 80, 80, 0.3);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.limpar-btn:hover {
+    background: rgba(255, 80, 80, 0.28);
+}
+
+.historico-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.historico-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 12px 16px;
+    gap: 12px;
+}
+
+.historico-termo {
+    font-size: 0.95rem;
+    color: #d0dff0;
+    font-weight: 500;
+}
+
+.historico-data {
+    font-size: 0.8rem;
+    color: #5e7a99;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Perfil ─────────────────────────────────────────────────────────────── */
+.perfil-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.perfil-email-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.perfil-label {
+    font-size: 0.8rem;
+    color: #5e7a99;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.perfil-section-title {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    color: #b6c3d6;
+}
+
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.perfil-field-label {
+    font-size: 0.85rem;
+    color: #7f90a8;
+    margin-bottom: -4px;
+}
+
+.sucesso-msg {
+    color: #4fcf80;
+    background: rgba(79, 207, 128, 0.1);
+    border: 1px solid rgba(79, 207, 128, 0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    margin: 0;
 }

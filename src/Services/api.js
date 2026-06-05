@@ -35,10 +35,8 @@ export async function buscarFontes(language) {
     return res.json()
 }
 
-export async function buscarDestaques(country, category) {
-    let url = `${API}/news/destaques?country=${country}`
-    if (category) url += `&category=${category}`
-    const res = await fetch(url)
+export async function buscarDestaques(language, q) {
+    const res = await fetch(`${API}/news/destaques?language=${language}&q=${encodeURIComponent(q)}`)
     if (!res.ok) throw new Error("Erro ao buscar destaques")
     return res.json()
 }
@@ -99,5 +97,29 @@ export async function removerMonitoramento(id, usuarioId) {
 export async function buscarFeedMonitoramento(usuarioId) {
     const res = await fetch(`${API}/monitoramento/feed`, { headers: { usuarioId } })
     if (!res.ok) throw new Error("Erro ao buscar feed de monitoramento")
+    return res.json()
+}
+
+export async function listarHistorico(usuarioId) {
+    const res = await fetch(`${API}/historico`, { headers: { usuarioId } })
+    if (!res.ok) throw new Error("Erro ao buscar histórico")
+    return res.json()
+}
+
+export async function limparHistorico(usuarioId) {
+    const res = await fetch(`${API}/historico`, {
+        method: "DELETE",
+        headers: { usuarioId },
+    })
+    if (!res.ok) throw new Error("Erro ao limpar histórico")
+}
+
+export async function atualizarSenha(usuarioId, email, senha, confirmacaoSenha) {
+    const res = await fetch(`${API}/usuarios/${usuarioId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha, confirmacaoSenha }),
+    })
+    if (!res.ok) throw new Error("Erro ao atualizar senha. Verifique os dados.")
     return res.json()
 }
