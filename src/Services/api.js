@@ -71,3 +71,33 @@ export async function removerFavorito(id, usuarioId) {
     })
     if (!res.ok) throw new Error("Erro ao remover favorito")
 }
+
+export async function listarMonitoramento(usuarioId) {
+    const res = await fetch(`${API}/monitoramento`, { headers: { usuarioId } })
+    if (!res.ok) throw new Error("Erro ao buscar monitoramentos")
+    return res.json()
+}
+
+export async function adicionarMonitoramento(item, usuarioId) {
+    const res = await fetch(`${API}/monitoramento`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", usuarioId },
+        body: JSON.stringify(item),
+    })
+    if (!res.ok) throw new Error("Erro ao adicionar monitoramento")
+    return res.json()
+}
+
+export async function removerMonitoramento(id, usuarioId) {
+    const res = await fetch(`${API}/monitoramento/${id}`, {
+        method: "DELETE",
+        headers: { usuarioId },
+    })
+    if (!res.ok) throw new Error("Erro ao remover monitoramento")
+}
+
+export async function buscarFeedMonitoramento(usuarioId) {
+    const res = await fetch(`${API}/monitoramento/feed`, { headers: { usuarioId } })
+    if (!res.ok) throw new Error("Erro ao buscar feed de monitoramento")
+    return res.json()
+}

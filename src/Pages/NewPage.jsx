@@ -2,15 +2,17 @@ import { useState, useEffect } from "react"
 import {
     buscarNoticias, buscarFontes, buscarDestaques,
     listarFavoritos, adicionarFavorito, removerFavorito,
+    listarMonitoramento, adicionarMonitoramento, removerMonitoramento, buscarFeedMonitoramento,
 } from "../Services/api"
-import { Search, Star, Clock, User, TrendingUp } from "lucide-react"
+import { Search, Star, Clock, User, TrendingUp, Bell } from "lucide-react"
 
 const MENU_ITEMS = [
-    { id: "destaques",    label: "Destaques",    icon: <TrendingUp size={18} /> },
-    { id: "busca",        label: "Busca",        icon: <Search size={18} /> },
-    { id: "favoritos",    label: "Favoritos",    icon: <Star size={18} /> },
-    { id: "historico",    label: "Histórico",    icon: <Clock size={18} /> },
-    { id: "perfil",       label: "Perfil",       icon: <User size={18} /> },
+    { id: "destaques",      label: "Destaques",      icon: <TrendingUp size={18} /> },
+    { id: "busca",          label: "Busca",          icon: <Search size={18} /> },
+    { id: "favoritos",      label: "Favoritos",      icon: <Star size={18} /> },
+    { id: "monitoramento",  label: "Monitoramento",  icon: <Bell size={18} /> },
+    { id: "historico",      label: "Histórico",      icon: <Clock size={18} /> },
+    { id: "perfil",         label: "Perfil",         icon: <User size={18} /> },
 ]
 
 const CATEGORIAS = [
@@ -52,9 +54,10 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
     )
 }
 
-function DestaquesTab() {
+function DestaquesTab({ usuario }) {
     const [categoria, setCategoria] = useState("general")
     const [noticias, setNoticias] = useState([])
+    const [feed, setFeed] = useState([])
     const [loading, setLoading] = useState(false)
     const [erro, setErro] = useState("")
 
@@ -71,7 +74,12 @@ function DestaquesTab() {
         }
     }
 
-    useEffect(() => { carregarDestaques(categoria) }, [])
+    useEffect(() => {
+        carregarDestaques(categoria)
+        buscarFeedMonitoramento(usuario.id)
+            .then(data => setFeed(data))
+            .catch(() => {})
+    }, [])
 
     const trocarCategoria = (cat) => {
         setCategoria(cat)
@@ -116,6 +124,40 @@ function DestaquesTab() {
                         </a>
                     ))}
                 </div>
+
+                {feed.length > 0 && (
+                    <div className="monitor-feed">
+                        <h2 className="section-title" style={{ marginTop: "40px" }}>Meu monitoramento</h2>
+                        {feed.map(item => (
+                            <div key={item.monitoramentoId} className="feed-section">
+                                <h3 className="feed-section-title">
+                                    <Bell size={14} />
+                                    {item.nome}
+                                    <span className="feed-tipo">{item.tipo === "TEMA" ? "Tema" : "Fonte"}</span>
+                                </h3>
+                                {item.artigos.length === 0 ? (
+                                    <p className="hint" style={{ margin: "8px 0" }}>Nenhuma notícia encontrada.</p>
+                                ) : (
+                                    <div className="cards-grid">
+                                        {item.artigos.slice(0, 3).map((article, i) => (
+                                            <a key={i} href={article.url} target="_blank"
+                                               rel="noopener noreferrer" className="news-card">
+                                                <div className="card-source">{article.source?.name}</div>
+                                                <h2 className="card-title">{article.title}</h2>
+                                                <p className="card-desc">{article.description}</p>
+                                                <span className="card-date">
+                                                    {article.publishedAt
+                                                        ? new Date(article.publishedAt).toLocaleDateString("pt-BR")
+                                                        : ""}
+                                                </span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </>
     )
@@ -318,6 +360,127 @@ function FavoritosTab({ usuario }) {
     )
 }
 
+function MonitoramentoTab({ usuario }) {
+    const [itens, setItens] = useState([])
+    const [tipo, setTipo] = useState("TEMA")
+    const [nome, setNome] = useState("")
+    const [valor, setValor] = useState("")
+    const [fontes, setFontes] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [erro, setErro] = useState("")
+
+    useEffect(() => {
+        listarMonitoramento(usuario.id)
+            .then(data => setItens(data))
+            .catch(err => setErro(err.message))
+            .finally(() => setLoading(false))
+        buscarFontes().then(data => setFontes(data.sources || [])).catch(() => {})
+    }, [])
+
+    const handleAdicionar = async (e) => {
+        e.preventDefault()
+        if (!nome.trim() || !valor.trim()) return
+        try {
+            const novo = await adicionarMonitoramento({ nome, valor, tipo }, usuario.id)
+            setItens([...itens, novo])
+            setNome("")
+            setValor("")
+        } catch (err) {
+            setErro(err.message)
+        }
+    }
+
+    const handleRemover = async (id) => {
+        try {
+            await removerMonitoramento(id, usuario.id)
+            setItens(itens.filter(i => i.id !== id))
+        } catch (err) {
+            setErro(err.message)
+        }
+    }
+
+    const handleTipoChange = (e) => {
+        setTipo(e.target.value)
+        setValor("")
+    }
+
+    return (
+        <section className="results-section" style={{ paddingTop: "32px" }}>
+            <h2 className="section-title">Monitoramento</h2>
+            <p className="monitor-desc">
+                Adicione temas ou fontes para monitorar. As notícias aparecem na aba Destaques.
+            </p>
+
+            {erro && <p className="erro-msg">{erro}</p>}
+
+            <form className="monitor-form" onSubmit={handleAdicionar}>
+                <select value={tipo} onChange={handleTipoChange} className="filter-select">
+                    <option value="TEMA">Tema</option>
+                    <option value="FONTE">Fonte</option>
+                </select>
+
+                <input
+                    type="text"
+                    placeholder="Nome de exibição (ex: Tecnologia)"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="search-input"
+                />
+
+                {tipo === "TEMA" ? (
+                    <input
+                        type="text"
+                        placeholder="Termo de busca (ex: inteligência artificial)"
+                        value={valor}
+                        onChange={(e) => setValor(e.target.value)}
+                        className="search-input"
+                    />
+                ) : (
+                    <select
+                        value={valor}
+                        onChange={(e) => setValor(e.target.value)}
+                        className="filter-select"
+                        style={{ flex: 1 }}
+                    >
+                        <option value="">Selecione uma fonte</option>
+                        {fontes.map(f => (
+                            <option key={f.id} value={f.id}>{f.name}</option>
+                        ))}
+                    </select>
+                )}
+
+                <button type="submit" className="search-btn">Adicionar</button>
+            </form>
+
+            {loading && <p className="hint">Carregando...</p>}
+
+            <div className="monitor-list">
+                {itens.length === 0 && !loading && (
+                    <p className="hint">Nenhum item monitorado. Adicione um tema ou fonte acima.</p>
+                )}
+                {itens.map(item => (
+                    <div key={item.id} className="monitor-item">
+                        <div className="monitor-item-info">
+                            <span className="monitor-item-nome">{item.nome}</span>
+                            <span className="monitor-item-valor">{item.valor}</span>
+                            <span className={`monitor-item-tipo ${item.tipo.toLowerCase()}`}>
+                                {item.tipo === "TEMA" ? "Tema" : "Fonte"}
+                            </span>
+                        </div>
+                        <button
+                            className="monitor-remove-btn"
+                            onClick={() => handleRemover(item.id)}
+                            title="Remover monitoramento"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </section>
+    )
+}
+
 function HistoricoTab() {
     return (
         <div className="tab-placeholder">
@@ -347,11 +510,12 @@ export default function NewsPage({ usuario, onLogout }) {
             <Sidebar aba={aba} setAba={setAba} usuario={usuario} onLogout={onLogout} />
 
             <main className="main-content">
-                {aba === "destaques"    && <DestaquesTab />}
-                {aba === "busca"        && <BuscaTab usuario={usuario} />}
-                {aba === "favoritos"    && <FavoritosTab usuario={usuario} />}
-                {aba === "historico"    && <HistoricoTab />}
-                {aba === "perfil"       && <PerfilTab usuario={usuario} />}
+                {aba === "destaques"     && <DestaquesTab usuario={usuario} />}
+                {aba === "busca"         && <BuscaTab usuario={usuario} />}
+                {aba === "favoritos"     && <FavoritosTab usuario={usuario} />}
+                {aba === "monitoramento" && <MonitoramentoTab usuario={usuario} />}
+                {aba === "historico"     && <HistoricoTab />}
+                {aba === "perfil"        && <PerfilTab usuario={usuario} />}
             </main>
         </div>
     )
