@@ -852,47 +852,140 @@ input {
     flex-shrink: 0;
 }
 
-/* ── Perfil ─────────────────────────────────────────────────────────────── */
-.perfil-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 16px;
-    padding: 28px;
-    max-width: 480px;
+/* ── Perfil (settings page) ─────────────────────────────────────────────── */
+.perfil-page {
+    padding: 32px 40px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    flex: 1;
 }
 
-.perfil-email-row {
+.perfil-section {
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.perfil-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+}
+
+.perfil-group-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #c8d8ec;
+}
+
+.perfil-danger-title {
+    color: #ff7b7b;
+}
+
+.perfil-field {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
 .perfil-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #5e7a99;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
 }
 
-.perfil-section-title {
-    margin: 0 0 16px;
+.perfil-email {
+    color: #52b7ff;
+    font-weight: 600;
     font-size: 1rem;
-    color: #b6c3d6;
 }
 
-.perfil-form {
+.perfil-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.perfil-field-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
 }
 
 .perfil-field-label {
     font-size: 0.85rem;
     color: #7f90a8;
-    margin-bottom: -4px;
+}
+
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.perfil-save-btn {
+    align-self: flex-start;
+}
+
+.perfil-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #4a6070;
+}
+
+.perfil-danger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.perfil-danger-name {
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+    color: #d0dff0;
+    font-weight: 500;
+}
+
+.perfil-danger-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #5e7a99;
+    max-width: 520px;
+}
+
+.perfil-confirm-exclusao {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.perfil-confirm-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.danger-btn {
+    background: rgba(255, 60, 60, 0.15);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 60, 60, 0.35);
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.danger-btn:hover {
+    background: rgba(255, 60, 60, 0.28);
 }
 
 .sucesso-msg {

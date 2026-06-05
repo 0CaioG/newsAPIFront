@@ -123,3 +123,10 @@ export async function atualizarSenha(usuarioId, email, senha, confirmacaoSenha) 
     if (!res.ok) throw new Error("Erro ao atualizar senha. Verifique os dados.")
     return res.json()
 }
+
+export async function excluirConta(usuarioId) {
+    const res = await fetch(`${API}/usuarios/${usuarioId}`, {
+        method: "DELETE",
+    })
+    if (!res.ok) throw new Error("Erro ao excluir conta.")
+}

@@ -3,7 +3,7 @@ import {
     buscarNoticias, buscarFontes, buscarDestaques,
     listarFavoritos, adicionarFavorito, removerFavorito,
     listarMonitoramento, adicionarMonitoramento, removerMonitoramento, buscarFeedMonitoramento,
-    listarHistorico, limparHistorico, atualizarSenha,
+    listarHistorico, limparHistorico, atualizarSenha, excluirConta,
 } from "../Services/api"
 import { Search, Star, Clock, User, TrendingUp, Bell } from "lucide-react"
 
@@ -92,7 +92,8 @@ function DestaquesTab({ usuario }) {
         setErro("")
         setExpandidoDestaques(false)
         try {
-            const data = await buscarDestaques("pt", q)
+            const idioma = localStorage.getItem("idiomaDestaques") || "pt"
+            const data = await buscarDestaques(idioma, q)
             setNoticias(data.articles || [])
         } catch (err) {
             setErro(err.message)
@@ -194,7 +195,7 @@ function DestaquesTab({ usuario }) {
 
 function BuscaTab({ usuario }) {
     const [query, setQuery] = useState("")
-    const [idioma, setIdioma] = useState("pt")
+    const [idioma, setIdioma] = useState(localStorage.getItem("idiomaBusca") || "pt")
     const [fonteSelecionada, setFonteSelecionada] = useState("")
     const [fontes, setFontes] = useState([])
     const [noticias, setNoticias] = useState([])
@@ -560,76 +561,178 @@ function HistoricoTab({ usuario }) {
     )
 }
 
-function PerfilTab({ usuario }) {
+const IDIOMAS = [
+    { value: "pt", label: "Português" },
+    { value: "en", label: "Inglês" },
+    { value: "es", label: "Espanhol" },
+    { value: "fr", label: "Francês" },
+    { value: "de", label: "Alemão" },
+    { value: "it", label: "Italiano" },
+    { value: "nl", label: "Holandês" },
+    { value: "ru", label: "Russo" },
+    { value: "zh", label: "Chinês" },
+    { value: "ar", label: "Árabe" },
+]
+
+function PerfilTab({ usuario, onLogout }) {
     const [senha, setSenha] = useState("")
     const [confirmacaoSenha, setConfirmacaoSenha] = useState("")
-    const [loading, setLoading] = useState(false)
-    const [sucesso, setSucesso] = useState("")
-    const [erro, setErro] = useState("")
+    const [loadingSenha, setLoadingSenha] = useState(false)
+    const [sucessoSenha, setSucessoSenha] = useState("")
+    const [erroSenha, setErroSenha] = useState("")
 
-    const handleSubmit = async (e) => {
+    const [idiomaBusca, setIdiomaBusca] = useState(localStorage.getItem("idiomaBusca") || "pt")
+    const [idiomaDestaques, setIdiomaDestaques] = useState(localStorage.getItem("idiomaDestaques") || "pt")
+
+    const [confirmarExclusao, setConfirmarExclusao] = useState(false)
+    const [loadingExcluir, setLoadingExcluir] = useState(false)
+    const [erroExcluir, setErroExcluir] = useState("")
+
+    const handleSenha = async (e) => {
         e.preventDefault()
         if (senha !== confirmacaoSenha) {
-            setErro("As senhas não coincidem.")
+            setErroSenha("As senhas não coincidem.")
             return
         }
-        setErro("")
-        setSucesso("")
-        setLoading(true)
+        setErroSenha("")
+        setSucessoSenha("")
+        setLoadingSenha(true)
         try {
             await atualizarSenha(usuario.id, usuario.email, senha, confirmacaoSenha)
-            setSucesso("Senha atualizada com sucesso!")
+            setSucessoSenha("Senha atualizada com sucesso!")
             setSenha("")
             setConfirmacaoSenha("")
         } catch (err) {
-            setErro(err.message)
+            setErroSenha(err.message)
         } finally {
-            setLoading(false)
+            setLoadingSenha(false)
+        }
+    }
+
+    const handleIdiomaBusca = (e) => {
+        const v = e.target.value
+        setIdiomaBusca(v)
+        localStorage.setItem("idiomaBusca", v)
+    }
+
+    const handleIdiomaDestaques = (e) => {
+        const v = e.target.value
+        setIdiomaDestaques(v)
+        localStorage.setItem("idiomaDestaques", v)
+    }
+
+    const handleExcluir = async () => {
+        setLoadingExcluir(true)
+        setErroExcluir("")
+        try {
+            await excluirConta(usuario.id)
+            onLogout()
+        } catch (err) {
+            setErroExcluir(err.message)
+            setLoadingExcluir(false)
         }
     }
 
     return (
-        <section className="results-section" style={{ paddingTop: "32px" }}>
-            <h2 className="section-title">Perfil</h2>
+        <section className="perfil-page">
+            <h2 className="section-title" style={{ marginBottom: "32px" }}>Configurações</h2>
 
-            <div className="perfil-card">
-                <div className="perfil-email-row">
+            <div className="perfil-section">
+                <h3 className="perfil-group-title">Conta</h3>
+                <div className="perfil-field">
                     <span className="perfil-label">E-mail</span>
                     <span className="perfil-email">{usuario.email}</span>
                 </div>
+            </div>
 
-                <form className="perfil-form" onSubmit={handleSubmit}>
-                    <h3 className="perfil-section-title">Alterar senha</h3>
+            <div className="perfil-divider" />
 
-                    {sucesso && <p className="sucesso-msg">{sucesso}</p>}
-                    {erro && <p className="erro-msg">{erro}</p>}
-
-                    <label className="perfil-field-label">Nova senha</label>
-                    <input
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        className="search-input"
-                        required
-                        minLength={6}
-                    />
-
-                    <label className="perfil-field-label">Confirmar nova senha</label>
-                    <input
-                        type="password"
-                        placeholder="Repita a nova senha"
-                        value={confirmacaoSenha}
-                        onChange={(e) => setConfirmacaoSenha(e.target.value)}
-                        className="search-input"
-                        required
-                        minLength={6}
-                    />
-
-                    <button type="submit" className="search-btn" disabled={loading}>
-                        {loading ? "Salvando..." : "Salvar nova senha"}
+            <div className="perfil-section">
+                <h3 className="perfil-group-title">Alterar senha</h3>
+                {sucessoSenha && <p className="sucesso-msg">{sucessoSenha}</p>}
+                {erroSenha && <p className="erro-msg">{erroSenha}</p>}
+                <form className="perfil-form" onSubmit={handleSenha}>
+                    <div className="perfil-row">
+                        <div className="perfil-field-group">
+                            <label className="perfil-field-label">Nova senha</label>
+                            <input
+                                type="password"
+                                placeholder="Mínimo 6 caracteres"
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                                className="search-input"
+                                required
+                                minLength={6}
+                            />
+                        </div>
+                        <div className="perfil-field-group">
+                            <label className="perfil-field-label">Confirmar nova senha</label>
+                            <input
+                                type="password"
+                                placeholder="Repita a nova senha"
+                                value={confirmacaoSenha}
+                                onChange={(e) => setConfirmacaoSenha(e.target.value)}
+                                className="search-input"
+                                required
+                                minLength={6}
+                            />
+                        </div>
+                    </div>
+                    <button type="submit" className="search-btn perfil-save-btn" disabled={loadingSenha}>
+                        {loadingSenha ? "Salvando..." : "Salvar nova senha"}
                     </button>
                 </form>
+            </div>
+
+            <div className="perfil-divider" />
+
+            <div className="perfil-section">
+                <h3 className="perfil-group-title">Preferências</h3>
+                <div className="perfil-row">
+                    <div className="perfil-field-group">
+                        <label className="perfil-field-label">Idioma padrão da busca</label>
+                        <select value={idiomaBusca} onChange={handleIdiomaBusca} className="filter-select">
+                            {IDIOMAS.map(i => <option key={i.value} value={i.value}>{i.label}</option>)}
+                        </select>
+                    </div>
+                    <div className="perfil-field-group">
+                        <label className="perfil-field-label">Idioma padrão dos destaques</label>
+                        <select value={idiomaDestaques} onChange={handleIdiomaDestaques} className="filter-select">
+                            {IDIOMAS.map(i => <option key={i.value} value={i.value}>{i.label}</option>)}
+                        </select>
+                    </div>
+                </div>
+                <p className="perfil-hint">Preferências salvas localmente no navegador.</p>
+            </div>
+
+            <div className="perfil-divider" />
+
+            <div className="perfil-section">
+                <h3 className="perfil-group-title perfil-danger-title">Zona de perigo</h3>
+                {erroExcluir && <p className="erro-msg">{erroExcluir}</p>}
+                {!confirmarExclusao ? (
+                    <div className="perfil-danger-row">
+                        <div>
+                            <p className="perfil-danger-name">Excluir conta</p>
+                            <p className="perfil-danger-desc">Remove permanentemente sua conta e todos os dados associados.</p>
+                        </div>
+                        <button className="danger-btn" onClick={() => setConfirmarExclusao(true)}>
+                            Excluir conta
+                        </button>
+                    </div>
+                ) : (
+                    <div className="perfil-confirm-exclusao">
+                        <p className="perfil-danger-desc">Tem certeza? Esta ação é <strong>irreversível</strong> e todos os seus dados serão apagados.</p>
+                        <div className="perfil-confirm-actions">
+                            <button className="danger-btn" onClick={handleExcluir} disabled={loadingExcluir}>
+                                {loadingExcluir ? "Excluindo..." : "Sim, excluir minha conta"}
+                            </button>
+                            <button className="limpar-btn" onClick={() => setConfirmarExclusao(false)}>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </section>
     )
@@ -663,7 +766,7 @@ export default function NewsPage({ usuario, onLogout }) {
                 {tab("favoritos",    <FavoritosTab usuario={usuario} />)}
                 {tab("monitoramento",<MonitoramentoTab usuario={usuario} />)}
                 {tab("historico",    <HistoricoTab usuario={usuario} />)}
-                {tab("perfil",       <PerfilTab usuario={usuario} />)}
+                {tab("perfil",       <PerfilTab usuario={usuario} onLogout={onLogout} />)}
             </main>
         </div>
     )
