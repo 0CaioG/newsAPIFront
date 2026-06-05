@@ -4,6 +4,7 @@ import {
     listarFavoritos, adicionarFavorito, removerFavorito,
     listarMonitoramento, adicionarMonitoramento, removerMonitoramento, buscarFeedMonitoramento,
     listarHistorico, limparHistorico, atualizarSenha, excluirConta,
+    registrarClique, obterHistoricoNoticias, limparHistoricoNoticias,
 } from "../Services/api"
 import { Search, Star, Clock, User, TrendingUp, Bell } from "lucide-react"
 
@@ -58,12 +59,13 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
 const LIMITE_DESTAQUES = 9
 const LIMITE_FEED = 3
 
-function CardList({ artigos }) {
+function CardList({ artigos, onClique }) {
     return (
         <div className="cards-grid">
             {artigos.map((article, i) => (
                 <a key={i} href={article.url} target="_blank"
-                   rel="noopener noreferrer" className="news-card">
+                   rel="noopener noreferrer" className="news-card"
+                   onClick={() => onClique && onClique(article)}>
                     <div className="card-source">{article.source?.name}</div>
                     <h2 className="card-title">{article.title}</h2>
                     <p className="card-desc">{article.description}</p>
@@ -148,7 +150,7 @@ function DestaquesTab({ usuario }) {
                     <p className="hint">Nenhum destaque encontrado.</p>
                 )}
 
-                <CardList artigos={noticiasMostradas} />
+                <CardList artigos={noticiasMostradas} onClique={registrarClique} />
 
                 {noticias.length > LIMITE_DESTAQUES && (
                     <button className="ver-mais-btn" onClick={() => setExpandidoDestaques(e => !e)}>
@@ -175,7 +177,7 @@ function DestaquesTab({ usuario }) {
                                         <p className="hint" style={{ margin: "8px 0" }}>Nenhuma notícia encontrada.</p>
                                     ) : (
                                         <>
-                                            <CardList artigos={artigosMostrados} />
+                                            <CardList artigos={artigosMostrados} onClique={registrarClique} />
                                             {item.artigos.length > LIMITE_FEED && (
                                                 <button className="ver-mais-btn" onClick={() => toggleFeed(item.monitoramentoId)}>
                                                     {expandido ? "Ver menos" : `Ver mais (${item.artigos.length - LIMITE_FEED} notícias)`}
@@ -310,7 +312,8 @@ function BuscaTab({ usuario }) {
                 <div className="cards-grid">
                     {noticias.map((article, i) => (
                         <a key={i} href={article.url} target="_blank"
-                           rel="noopener noreferrer" className="news-card">
+                           rel="noopener noreferrer" className="news-card"
+                           onClick={() => registrarClique(article)}>
                             <div className="card-header">
                                 <div className="card-source">{article.source?.name}</div>
                                 <button
@@ -379,7 +382,8 @@ function FavoritosTab({ usuario }) {
                                 <Star size={15} fill="currentColor" />
                             </button>
                         </div>
-                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="card-title-link">
+                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="card-title-link"
+                           onClick={() => registrarClique(f)}>
                             <h2 className="card-title">{f.titulo}</h2>
                         </a>
                         <p className="card-desc">{f.descricao}</p>
@@ -512,13 +516,14 @@ function MonitoramentoTab({ usuario }) {
 }
 
 function HistoricoTab({ usuario }) {
-    const [historico, setHistorico] = useState([])
+    const [buscas, setBuscas] = useState([])
+    const [noticias, setNoticias] = useState(obterHistoricoNoticias())
     const [loading, setLoading] = useState(true)
     const [erro, setErro] = useState("")
 
     useEffect(() => {
         listarHistorico(usuario.id)
-            .then(data => setHistorico(data))
+            .then(data => setBuscas(data))
             .catch(err => setErro(err.message))
             .finally(() => setLoading(false))
     }, [])
@@ -526,37 +531,69 @@ function HistoricoTab({ usuario }) {
     const handleLimpar = async () => {
         try {
             await limparHistorico(usuario.id)
-            setHistorico([])
+            limparHistoricoNoticias()
+            setBuscas([])
+            setNoticias([])
         } catch (err) {
             setErro(err.message)
         }
     }
 
+    const temConteudo = noticias.length > 0 || buscas.length > 0
+
     return (
         <section className="results-section" style={{ paddingTop: "32px" }}>
             <div className="section-header">
-                <h2 className="section-title">Histórico de buscas</h2>
-                {historico.length > 0 && (
+                <h2 className="section-title">Histórico</h2>
+                {temConteudo && (
                     <button className="limpar-btn" onClick={handleLimpar}>
-                        Limpar histórico
+                        Limpar tudo
                     </button>
                 )}
             </div>
             {erro && <p className="erro-msg">{erro}</p>}
-            {loading && <p className="hint">Carregando histórico...</p>}
-            {!loading && historico.length === 0 && !erro && (
-                <p className="hint">Nenhuma busca realizada ainda.</p>
+
+            {noticias.length > 0 && (
+                <div className="historico-bloco">
+                    <h3 className="historico-subtitulo">Notícias visualizadas</h3>
+                    <ul className="historico-list">
+                        {noticias.map((item, i) => (
+                            <li key={i} className="historico-item historico-noticia">
+                                <div className="historico-noticia-info">
+                                    <a href={item.url} target="_blank" rel="noopener noreferrer"
+                                       className="historico-noticia-titulo">
+                                        {item.titulo}
+                                    </a>
+                                    {item.fonteNome && (
+                                        <span className="historico-fonte">{item.fonteNome}</span>
+                                    )}
+                                </div>
+                                <span className="historico-data">
+                                    {new Date(item.dataClique).toLocaleString("pt-BR")}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             )}
-            <ul className="historico-list">
-                {historico.map(item => (
-                    <li key={item.id} className="historico-item">
-                        <span className="historico-termo">{item.termoBusca}</span>
-                        <span className="historico-data">
-                            {new Date(item.dataConsulta).toLocaleString("pt-BR")}
-                        </span>
-                    </li>
-                ))}
-            </ul>
+
+            <div className="historico-bloco">
+                <h3 className="historico-subtitulo">Buscas realizadas</h3>
+                {loading && <p className="hint">Carregando...</p>}
+                {!loading && buscas.length === 0 && !erro && (
+                    <p className="hint">Nenhuma busca realizada ainda.</p>
+                )}
+                <ul className="historico-list">
+                    {buscas.map(item => (
+                        <li key={item.id} className="historico-item">
+                            <span className="historico-termo">{item.termoBusca}</span>
+                            <span className="historico-data">
+                                {new Date(item.dataConsulta).toLocaleString("pt-BR")}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </section>
     )
 }

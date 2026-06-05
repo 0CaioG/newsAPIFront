@@ -130,3 +130,25 @@ export async function excluirConta(usuarioId) {
     })
     if (!res.ok) throw new Error("Erro ao excluir conta.")
 }
+
+const CHAVE_NOTICIAS = "historicoNoticias"
+
+export function registrarClique(artigo) {
+    const existentes = JSON.parse(localStorage.getItem(CHAVE_NOTICIAS) || "[]")
+    const novo = {
+        titulo: artigo.title || artigo.titulo,
+        url: artigo.url,
+        fonteNome: artigo.source?.name || artigo.fonteNome || "",
+        dataClique: new Date().toISOString(),
+    }
+    const filtrado = existentes.filter(e => e.url !== novo.url)
+    localStorage.setItem(CHAVE_NOTICIAS, JSON.stringify([novo, ...filtrado].slice(0, 50)))
+}
+
+export function obterHistoricoNoticias() {
+    return JSON.parse(localStorage.getItem(CHAVE_NOTICIAS) || "[]")
+}
+
+export function limparHistoricoNoticias() {
+    localStorage.removeItem(CHAVE_NOTICIAS)
+}
