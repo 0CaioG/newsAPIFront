@@ -105,9 +105,12 @@ function DestaquesTab({ usuario }) {
 
     useEffect(() => {
         carregarDestaques(categoria)
-        buscarFeedMonitoramento(usuario.id)
-            .then(data => setFeed(data))
-            .catch(() => {})
+        const t = setTimeout(() => {
+            buscarFeedMonitoramento(usuario.id)
+                .then(data => setFeed(data))
+                .catch(() => {})
+        }, 800)
+        return () => clearTimeout(t)
     }, [])
 
     const trocarCategoria = (q) => {
@@ -143,7 +146,15 @@ function DestaquesTab({ usuario }) {
             </section>
 
             <section className="results-section">
-                {erro && <p className="erro-msg">{erro}</p>}
+                {erro && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
+                        <p className="erro-msg" style={{ margin: 0 }}>{erro}</p>
+                        <button className="ver-mais-btn" style={{ margin: 0 }}
+                                onClick={() => carregarDestaques(categoria)}>
+                            Tentar novamente
+                        </button>
+                    </div>
+                )}
                 {loading && <p className="hint">Carregando destaques...</p>}
                 {!loading && noticias.length === 0 && !erro && (
                     <p className="hint">Nenhum destaque encontrado.</p>
