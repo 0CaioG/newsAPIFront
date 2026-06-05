@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { buscarNoticias, buscarFontes } from "../Services/api"
+import { buscarNoticias, buscarFontes, listarFavoritos, adicionarFavorito, removerFavorito } from "../Services/api"
 import { Search, Star, Clock, User } from "lucide-react"
 
 const MENU_ITEMS = [
@@ -44,12 +44,18 @@ function BuscaTab({ usuario }) {
     const [fonteSelecionada, setFonteSelecionada] = useState("")
     const [fontes, setFontes] = useState([])
     const [noticias, setNoticias] = useState([])
+    const [favoritosMap, setFavoritosMap] = useState({})
     const [loading, setLoading] = useState(false)
     const [erro, setErro] = useState("")
     const [buscado, setBuscado] = useState(false)
 
     useEffect(() => {
         buscarFontes().then(data => setFontes(data.sources || [])).catch(() => {})
+        listarFavoritos(usuario.id).then(data => {
+            const map = {}
+            data.forEach(f => { map[f.url] = f.id })
+            setFavoritosMap(map)
+        }).catch(() => {})
     }, [])
 
     const realizarBusca = async (termoDeBusca, idiomaEscolhido, fonteId) => {
@@ -82,6 +88,21 @@ function BuscaTab({ usuario }) {
         const novaFonte = e.target.value
         setFonteSelecionada(novaFonte)
         if (query.trim()) realizarBusca(query, idioma, novaFonte)
+    }
+
+    const toggleFavorito = async (e, artigo) => {
+        e.preventDefault()
+        e.stopPropagation()
+        const url = artigo.url
+        if (favoritosMap[url]) {
+            await removerFavorito(favoritosMap[url], usuario.id)
+            const novo = { ...favoritosMap }
+            delete novo[url]
+            setFavoritosMap(novo)
+        } else {
+            const salvo = await adicionarFavorito(artigo, usuario.id)
+            setFavoritosMap({ ...favoritosMap, [url]: salvo.id })
+        }
     }
 
     return (
@@ -135,7 +156,16 @@ function BuscaTab({ usuario }) {
                     {noticias.map((article, i) => (
                         <a key={i} href={article.url} target="_blank"
                            rel="noopener noreferrer" className="news-card">
-                            <div className="card-source">{article.source?.name}</div>
+                            <div className="card-header">
+                                <div className="card-source">{article.source?.name}</div>
+                                <button
+                                    className={`card-fav-btn ${favoritosMap[article.url] ? "fav-active" : ""}`}
+                                    onClick={(e) => toggleFavorito(e, article)}
+                                    title={favoritosMap[article.url] ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                >
+                                    <Star size={15} fill={favoritosMap[article.url] ? "currentColor" : "none"} />
+                                </button>
+                            </div>
                             <h2 className="card-title">{article.title}</h2>
                             <p className="card-desc">{article.description}</p>
                             <span className="card-date">
@@ -151,13 +181,57 @@ function BuscaTab({ usuario }) {
     )
 }
 
-function FavoritosTab() {
+function FavoritosTab({ usuario }) {
+    const [favoritos, setFavoritos] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [erro, setErro] = useState("")
+
+    useEffect(() => {
+        listarFavoritos(usuario.id)
+            .then(data => setFavoritos(data))
+            .catch(err => setErro(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const handleRemover = async (id) => {
+        try {
+            await removerFavorito(id, usuario.id)
+            setFavoritos(favoritos.filter(f => f.id !== id))
+        } catch (err) {
+            setErro(err.message)
+        }
+    }
+
+    if (loading) return <p className="hint">Carregando favoritos...</p>
+
     return (
-        <div className="tab-placeholder">
-            <span className="tab-icon">⭐</span>
-            <h3>Favoritos</h3>
-            <p>Suas notícias favoritas aparecerão aqui.</p>
-        </div>
+        <section className="results-section" style={{ paddingTop: "32px" }}>
+            <h2 className="section-title">Seus Favoritos</h2>
+            {erro && <p className="erro-msg">{erro}</p>}
+            {favoritos.length === 0 && (
+                <p className="hint">Nenhuma notícia favoritada ainda. Salve notícias na aba Busca!</p>
+            )}
+            <div className="cards-grid">
+                {favoritos.map(f => (
+                    <div key={f.id} className="news-card">
+                        <div className="card-header">
+                            <div className="card-source">{f.fonteNome}</div>
+                            <button
+                                className="card-fav-btn fav-active"
+                                onClick={() => handleRemover(f.id)}
+                                title="Remover dos favoritos"
+                            >
+                                <Star size={15} fill="currentColor" />
+                            </button>
+                        </div>
+                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="card-title-link">
+                            <h2 className="card-title">{f.titulo}</h2>
+                        </a>
+                        <p className="card-desc">{f.descricao}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
     )
 }
 
@@ -191,7 +265,7 @@ export default function NewsPage({ usuario, onLogout }) {
 
             <main className="main-content">
                 {aba === "busca"     && <BuscaTab usuario={usuario} />}
-                {aba === "favoritos" && <FavoritosTab />}
+                {aba === "favoritos" && <FavoritosTab usuario={usuario} />}
                 {aba === "historico" && <HistoricoTab />}
                 {aba === "perfil"    && <PerfilTab usuario={usuario} />}
             </main>

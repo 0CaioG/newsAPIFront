@@ -34,3 +34,32 @@ export async function buscarFontes(language) {
     if (!res.ok) throw new Error("Erro ao buscar fontes")
     return res.json()
 }
+
+export async function listarFavoritos(usuarioId) {
+    const res = await fetch(`${API}/favoritos`, { headers: { usuarioId } })
+    if (!res.ok) throw new Error("Erro ao buscar favoritos")
+    return res.json()
+}
+
+export async function adicionarFavorito(artigo, usuarioId) {
+    const res = await fetch(`${API}/favoritos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", usuarioId },
+        body: JSON.stringify({
+            titulo: artigo.title,
+            descricao: artigo.description,
+            url: artigo.url,
+            fonteNome: artigo.source?.name,
+        }),
+    })
+    if (!res.ok) throw new Error("Erro ao adicionar favorito")
+    return res.json()
+}
+
+export async function removerFavorito(id, usuarioId) {
+    const res = await fetch(`${API}/favoritos/${id}`, {
+        method: "DELETE",
+        headers: { usuarioId },
+    })
+    if (!res.ok) throw new Error("Erro ao remover favorito")
+}
