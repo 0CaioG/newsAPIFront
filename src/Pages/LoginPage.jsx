@@ -26,9 +26,8 @@ export default function LoginPage({ onLogin, onCadastro }) {
         <main className="page-shell">
             <section className="login-panel" aria-labelledby="site-title">
                 <div className="brand-block">
-                    <span className="brand-tag">Portal de noticias</span>
                     <h1 id="site-title">InfoNews</h1>
-                    <p>Acesse sua conta para acompanhar manchetes, alertas e os assuntos que importam para voce.</p>
+                    <p>Acesse sua conta para acompanhar manchetes, alertas e os assuntos que importam para você.</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
