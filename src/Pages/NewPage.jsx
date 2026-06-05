@@ -1,12 +1,26 @@
 import { useState, useEffect } from "react"
-import { buscarNoticias, buscarFontes, listarFavoritos, adicionarFavorito, removerFavorito } from "../Services/api"
-import { Search, Star, Clock, User } from "lucide-react"
+import {
+    buscarNoticias, buscarFontes, buscarDestaques,
+    listarFavoritos, adicionarFavorito, removerFavorito,
+} from "../Services/api"
+import { Search, Star, Clock, User, TrendingUp } from "lucide-react"
 
 const MENU_ITEMS = [
-    { id: "busca",     label: "Busca",     icon: <Search size={18} /> },
-    { id: "favoritos", label: "Favoritos", icon: <Star size={18} /> },
-    { id: "historico", label: "Histórico", icon: <Clock size={18} /> },
-    { id: "perfil",    label: "Perfil",    icon: <User size={18} /> },
+    { id: "destaques",    label: "Destaques",    icon: <TrendingUp size={18} /> },
+    { id: "busca",        label: "Busca",        icon: <Search size={18} /> },
+    { id: "favoritos",    label: "Favoritos",    icon: <Star size={18} /> },
+    { id: "historico",    label: "Histórico",    icon: <Clock size={18} /> },
+    { id: "perfil",       label: "Perfil",       icon: <User size={18} /> },
+]
+
+const CATEGORIAS = [
+    { id: "general",       label: "Geral" },
+    { id: "technology",    label: "Tecnologia" },
+    { id: "business",      label: "Negócios" },
+    { id: "sports",        label: "Esportes" },
+    { id: "entertainment", label: "Entretenimento" },
+    { id: "health",        label: "Saúde" },
+    { id: "science",       label: "Ciência" },
 ]
 
 function Sidebar({ aba, setAba, usuario, onLogout }) {
@@ -35,6 +49,75 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
                 <button className="logout-btn" onClick={onLogout}>Sair</button>
             </div>
         </aside>
+    )
+}
+
+function DestaquesTab() {
+    const [categoria, setCategoria] = useState("general")
+    const [noticias, setNoticias] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [erro, setErro] = useState("")
+
+    const carregarDestaques = async (cat) => {
+        setLoading(true)
+        setErro("")
+        try {
+            const data = await buscarDestaques("br", cat)
+            setNoticias(data.articles || [])
+        } catch (err) {
+            setErro(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => { carregarDestaques(categoria) }, [])
+
+    const trocarCategoria = (cat) => {
+        setCategoria(cat)
+        carregarDestaques(cat)
+    }
+
+    return (
+        <>
+            <section className="search-section">
+                <h2 className="section-title">Notícias em alta</h2>
+                <div className="category-tabs">
+                    {CATEGORIAS.map(c => (
+                        <button
+                            key={c.id}
+                            className={`category-btn ${categoria === c.id ? "active" : ""}`}
+                            onClick={() => trocarCategoria(c.id)}
+                        >
+                            {c.label}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
+            <section className="results-section">
+                {erro && <p className="erro-msg">{erro}</p>}
+                {loading && <p className="hint">Carregando destaques...</p>}
+                {!loading && noticias.length === 0 && !erro && (
+                    <p className="hint">Nenhum destaque encontrado.</p>
+                )}
+                <div className="cards-grid">
+                    {noticias.map((article, i) => (
+                        <a key={i} href={article.url} target="_blank"
+                           rel="noopener noreferrer" className="news-card">
+                            <div className="card-source">{article.source?.name}</div>
+                            <h2 className="card-title">{article.title}</h2>
+                            <p className="card-desc">{article.description}</p>
+                            <span className="card-date">
+                                {article.publishedAt
+                                    ? new Date(article.publishedAt).toLocaleDateString("pt-BR")
+                                    : ""}
+                            </span>
+                        </a>
+                    ))}
+                </div>
+            </section>
+        </>
     )
 }
 
@@ -257,17 +340,18 @@ function PerfilTab({ usuario }) {
 }
 
 export default function NewsPage({ usuario, onLogout }) {
-    const [aba, setAba] = useState("busca")
+    const [aba, setAba] = useState("destaques")
 
     return (
         <div className="app-layout">
             <Sidebar aba={aba} setAba={setAba} usuario={usuario} onLogout={onLogout} />
 
             <main className="main-content">
-                {aba === "busca"     && <BuscaTab usuario={usuario} />}
-                {aba === "favoritos" && <FavoritosTab usuario={usuario} />}
-                {aba === "historico" && <HistoricoTab />}
-                {aba === "perfil"    && <PerfilTab usuario={usuario} />}
+                {aba === "destaques"    && <DestaquesTab />}
+                {aba === "busca"        && <BuscaTab usuario={usuario} />}
+                {aba === "favoritos"    && <FavoritosTab usuario={usuario} />}
+                {aba === "historico"    && <HistoricoTab />}
+                {aba === "perfil"       && <PerfilTab usuario={usuario} />}
             </main>
         </div>
     )

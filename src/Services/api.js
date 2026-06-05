@@ -35,6 +35,14 @@ export async function buscarFontes(language) {
     return res.json()
 }
 
+export async function buscarDestaques(country, category) {
+    let url = `${API}/news/destaques?country=${country}`
+    if (category) url += `&category=${category}`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error("Erro ao buscar destaques")
+    return res.json()
+}
+
 export async function listarFavoritos(usuarioId) {
     const res = await fetch(`${API}/favoritos`, { headers: { usuarioId } })
     if (!res.ok) throw new Error("Erro ao buscar favoritos")

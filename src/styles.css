@@ -413,6 +413,35 @@ input {
     color: #eef5ff;
     font-weight: 600;
 }
+
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.category-btn {
+    padding: 7px 16px;
+    border: 1px solid rgba(157, 178, 214, 0.2);
+    border-radius: 999px;
+    background: transparent;
+    color: #b6c3d6;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.category-btn:hover {
+    background: rgba(143, 216, 255, 0.08);
+    color: #eef5ff;
+}
+
+.category-btn.active {
+    background: rgba(82, 183, 255, 0.15);
+    border-color: rgba(82, 183, 255, 0.4);
+    color: #52b7ff;
+    font-weight: 600;
+}
 .input-wrapper {
     position: relative;
     display: flex;
