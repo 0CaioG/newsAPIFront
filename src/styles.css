@@ -229,7 +229,30 @@ input {
 
 .search-form {
     display: flex;
+    flex-direction: column;
     gap: 12px;
+}
+
+.search-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 10px 14px;
+    border: 1px solid rgba(157, 178, 214, 0.2);
+    border-radius: 8px;
+    background: rgba(8, 17, 30, 0.9);
+    color: #eef5ff;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+    border-color: #52b7ff;
 }
 
 .search-input {

@@ -20,10 +20,17 @@ export async function cadastrar(email, senha, confirmacaoSenha) {
     return res.json()
 }
 
-export async function buscarNoticias(query, language, usuarioId) {
-    const res = await fetch(`${API}/news/buscar?q=${encodeURIComponent(query)}&language=${language}`, {
-        headers: { usuarioId },
-    })
+export async function buscarNoticias(query, language, fonte, usuarioId) {
+    let url = `${API}/news/buscar?q=${encodeURIComponent(query)}&language=${language}`
+    if (fonte) url += `&fontes=${encodeURIComponent(fonte)}`
+    const res = await fetch(url, { headers: { usuarioId } })
     if (!res.ok) throw new Error("Erro ao buscar notícias")
+    return res.json()
+}
+
+export async function buscarFontes(language) {
+    const params = language ? `?language=${language}` : ""
+    const res = await fetch(`${API}/sources${params}`)
+    if (!res.ok) throw new Error("Erro ao buscar fontes")
     return res.json()
 }

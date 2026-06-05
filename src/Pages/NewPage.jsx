@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { buscarNoticias } from "../Services/api"
+import { useState, useEffect } from "react"
+import { buscarNoticias, buscarFontes } from "../Services/api"
 import { Search, Star, Clock, User } from "lucide-react"
 
 const MENU_ITEMS = [
@@ -41,18 +41,24 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
 function BuscaTab({ usuario }) {
     const [query, setQuery] = useState("")
     const [idioma, setIdioma] = useState("pt")
+    const [fonteSelecionada, setFonteSelecionada] = useState("")
+    const [fontes, setFontes] = useState([])
     const [noticias, setNoticias] = useState([])
     const [loading, setLoading] = useState(false)
     const [erro, setErro] = useState("")
     const [buscado, setBuscado] = useState(false)
 
-    const realizarBusca = async (termoDeBusca, idiomaEscolhido) => {
+    useEffect(() => {
+        buscarFontes().then(data => setFontes(data.sources || [])).catch(() => {})
+    }, [])
+
+    const realizarBusca = async (termoDeBusca, idiomaEscolhido, fonteId) => {
         if (!termoDeBusca.trim()) return
         setErro("")
         setLoading(true)
         setBuscado(true)
         try {
-            const data = await buscarNoticias(termoDeBusca, idiomaEscolhido, usuario.id)
+            const data = await buscarNoticias(termoDeBusca, idiomaEscolhido, fonteId, usuario.id)
             setNoticias(data.articles || [])
         } catch (err) {
             setErro(err.message)
@@ -63,16 +69,19 @@ function BuscaTab({ usuario }) {
 
     const buscarForm = (e) => {
         e.preventDefault()
-        realizarBusca(query, idioma)
+        realizarBusca(query, idioma, fonteSelecionada)
     }
 
     const trocarIdioma = (e) => {
         const novoIdioma = e.target.value
         setIdioma(novoIdioma)
-        
-        if (query.trim()) {
-            realizarBusca(query, novoIdioma)
-        }
+        if (query.trim()) realizarBusca(query, novoIdioma, fonteSelecionada)
+    }
+
+    const trocarFonte = (e) => {
+        const novaFonte = e.target.value
+        setFonteSelecionada(novaFonte)
+        if (query.trim()) realizarBusca(query, idioma, novaFonte)
     }
 
     return (
@@ -86,28 +95,31 @@ function BuscaTab({ usuario }) {
                         onChange={(e) => setQuery(e.target.value)}
                         className="search-input"
                     />
-                    
-                    <select 
-                        value={idioma} 
-                        onChange={trocarIdioma} 
-                        className="language-select"
-                        style={{ padding: '0.5rem', borderRadius: '4px', border: 'none', marginLeft: '8px', backgroundColor: '#333', color: '#fff' }}
-                    >
-                        <option value="pt">Português</option>
-                        <option value="en">Inglês</option>
-                        <option value="es">Espanhol</option>
-                        <option value="fr">Francês</option>
-                        <option value="de">Alemão</option>
-                        <option value="it">Italiano</option>
-                        <option value="nl">Holandês</option>
-                        <option value="ru">Russo</option>
-                        <option value="zh">Chinês</option>
-                        <option value="ar">Árabe</option>
-                    </select>
+                    <div className="search-filters">
+                        <select value={idioma} onChange={trocarIdioma} className="filter-select">
+                            <option value="pt">Português</option>
+                            <option value="en">Inglês</option>
+                            <option value="es">Espanhol</option>
+                            <option value="fr">Francês</option>
+                            <option value="de">Alemão</option>
+                            <option value="it">Italiano</option>
+                            <option value="nl">Holandês</option>
+                            <option value="ru">Russo</option>
+                            <option value="zh">Chinês</option>
+                            <option value="ar">Árabe</option>
+                        </select>
 
-                    <button type="submit" className="search-btn" disabled={loading} style={{ marginLeft: '8px' }}>
-                        {loading ? "Buscando..." : "Buscar"}
-                    </button>
+                        <select value={fonteSelecionada} onChange={trocarFonte} className="filter-select">
+                            <option value="">Todas as fontes</option>
+                            {fontes.map(f => (
+                                <option key={f.id} value={f.id}>{f.name}</option>
+                            ))}
+                        </select>
+
+                        <button type="submit" className="search-btn" disabled={loading}>
+                            {loading ? "Buscando..." : "Buscar"}
+                        </button>
+                    </div>
                 </form>
             </section>
 
