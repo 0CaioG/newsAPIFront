@@ -31,7 +31,6 @@ function Sidebar({ aba, setAba, usuario, onLogout }) {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <span className="brand-tag">Portal de notícias</span>
                 <h2 className="sidebar-title">InfoNews</h2>
             </div>
 
@@ -748,7 +747,6 @@ function PerfilTab({ usuario, onLogout }) {
             <div className="perfil-divider" />
 
             <div className="perfil-section">
-                <h3 className="perfil-group-title perfil-danger-title">Zona de perigo</h3>
                 {erroExcluir && <p className="erro-msg">{erroExcluir}</p>}
                 {!confirmarExclusao ? (
                     <div className="perfil-danger-row">
